@@ -14,21 +14,22 @@
     <div id="controls">
         <input type="text" id="city" placeholder="Enter city name" />
         <button onclick="fetchWeather()">Get Weather</button>
-        <button onclick="fetchForecast()">Get Forecast</button>
-        <button onclick="fetchHistory()">Get History</button>
+        <button onclick="fetchAirQuality()">Get Air Quality</button>
+        <button onclick="fetchForecast()">Get 3 day forecast</button>
     </div>
 
     <div id="results" class="container">
         <div id="weather" class="card"></div>
+        <div id="airQuality" class="card"></div>
         <div id="forecast" class="card"></div>
-        <div id="history" class="card"></div>
     </div>
-
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    
     <script>
         let map;
+        let marker;
 
         function initializeMap(lat, lon) {
             if (!map) {
@@ -39,17 +40,16 @@
             } else {
                 map.setView([lat, lon], 10);
             }
-            L.marker([lat, lon]).addTo(map);
-        }
 
-        function clearResults() {
-            document.getElementById('weather').innerHTML = '';
-            document.getElementById('forecast').innerHTML = '';
-            document.getElementById('history').innerHTML = '';
-        }
+            
+            if (marker) {
+                map.removeLayer(marker);
+            }
 
+            
+            marker = L.marker([lat, lon]).addTo(map);
+        }
         async function fetchWeather() {
-            clearResults();
             const city = document.getElementById('city').value;
             const weatherDiv = document.getElementById('weather');
             weatherDiv.innerHTML = '<p class="loading">Loading...</p>';
@@ -57,18 +57,14 @@
             try {
                 const response = await fetch(`/weather?city=${city}`);
                 const data = await response.json();
-
                 if (data.error) {
                     weatherDiv.innerHTML = `<p class="error">${data.error}</p>`;
                     return;
                 }
-
                 weatherDiv.innerHTML = `
                     <h3>Weather in ${data.city} (${data.countryCode})</h3>
                     <p><strong>Temperature:</strong> ${data.temperature}°C</p>
                     <p><strong>Feels Like:</strong> ${data.feelsLike}°C</p>
-                    <p><strong>Humidity:</strong> ${data.humidity}%</p>
-                    <p><strong>Wind Speed:</strong> ${data.windSpeed} m/s</p>
                     <p><strong>Description:</strong> ${data.description}</p>
                     <img src="${data.icon}" alt="${data.description}" />
                 `;
@@ -79,52 +75,65 @@
             }
         }
 
-        async function fetchForecast() {
-            const city = document.getElementById('city').value;
-            const forecastDiv = document.getElementById('forecast');
-            forecastDiv.innerHTML = '<p class="loading">Loading...</p>';
+        async function fetchAirQuality() {
+    const city = document.getElementById('city').value;
+    const airQualityDiv = document.getElementById('airQuality');
+    airQualityDiv.innerHTML = '<p class="loading">Loading air quality...</p>';
 
-            try {
-                const response = await fetch(`/forecast?city=${city}`);
-                const data = await response.json();
+    try {
+        const response = await fetch(`/air-quality?city=${city}`);
+        const data = await response.json();
 
-                if (data.error) {
-                    forecastDiv.innerHTML = `<p class="error">${data.error}</p>`;
-                    return;
-                }
-
-                forecastDiv.innerHTML = '<h3>5-Day Forecast</h3>';
-                data.forEach(item => {
-                    forecastDiv.innerHTML += `
-                        <p><strong>${item.time}:</strong> ${item.temperature}°C, ${item.description}</p>
-                        <img src="${item.icon}" alt="${item.description}" />
-                    `;
-                });
-            } catch (error) {
-                forecastDiv.innerHTML = '<p class="error">Failed to fetch forecast data</p>';
-            }
+        if (data.error) {
+            airQualityDiv.innerHTML = `<p class="error">${data.error}</p>`;
+            return;
         }
 
-        async function fetchHistory() {
-            const city = document.getElementById('city').value;
-            const historyDiv = document.getElementById('history');
-            historyDiv.innerHTML = '<p class="loading">Loading...</p>';
+        airQualityDiv.innerHTML = `
+            <h3>Air Quality in ${data.city}</h3>
+            <p><strong>AQI:</strong> ${data.aqi}</p>
+            <p><strong>PM2.5:</strong> ${data.pm25} µg/m³</p>
+            <p><strong>PM10:</strong> ${data.pm10} µg/m³</p>
+            <p><strong>O3:</strong> ${data.o3} µg/m³</p>
+            <p><strong>NO2:</strong> ${data.no2} µg/m³</p>
+            <p><strong>CO:</strong> ${data.co} µg/m³</p>
+        `;
+    } catch (error) {
+        airQualityDiv.innerHTML = '<p class="error">Failed to fetch air quality data</p>';
+    }
+}
 
-            try {
-                const response = await fetch(`/history?city=${city}`);
-                const data = await response.json();
+async function fetchForecast() {
+    const city = document.getElementById('city').value;
+    const forecastDiv = document.getElementById('forecast'); 
+    forecastDiv.innerHTML = '<p class="loading">Loading forecast...</p>';
 
-                if (data.error) {
-                    historyDiv.innerHTML = `<p class="error">${data.error}</p>`;
-                    return;
-                }
+    try {
+        const response = await fetch(`/forecast?city=${city}`);
+        const data = await response.json();
 
-                historyDiv.innerHTML = '<h3>Historical Data</h3>';
-                historyDiv.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-            } catch (error) {
-                historyDiv.innerHTML = '<p class="error">Failed to fetch historical data</p>';
-            }
+        if (data.error) {
+            forecastDiv.innerHTML = `<p class="error">${data.error}</p>`;
+            return;
         }
+
+        forecastDiv.innerHTML = `
+            <h3>Weather Forecast for ${city}</h3>
+            <ul>
+                ${data.map(day => `
+                    <li>
+                        <p><strong>Date:</strong> ${day.date}</p>
+                        <p><strong>Temperature:</strong> ${day.temperature}°C</p>
+                        <p><strong>Condition:</strong> ${day.condition}</p>
+                        <img src="https:${day.icon}" alt="${day.condition}" />
+                    </li>
+                `).join('')}
+            </ul>
+        `;
+    } catch (error) {
+        forecastDiv.innerHTML = '<p class="error">Failed to fetch forecast data</p>';
+    }
+}
     </script>
 </body>
 
