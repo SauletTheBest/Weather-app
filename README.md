@@ -1,13 +1,13 @@
 # Weather-app
 
-This project is a web application that provides weather information, a 5-day forecast, and historical weather data for a specified city. It also integrates an interactive map to display the location of the city.
+This project is a web application that provides weather information, a 3-day forecast, and quality of air for a specified city. It also integrates an interactive map to display the location of the city.
 
 ## Features
 
-- **Weather Information(First API):** View current weather details such as temperature, humidity, wind speed, and more.
-- **5-Day Forecast(Second API):** Access detailed weather forecasts for the next 5 days.
-- **Historical Data(Third API):** Retrieve historical weather data for the past 7 days.
-- **Interactive Map(Fourth API):** Explore the city's location on an interactive map powered by Leaflet and OpenStreetMap.
+- **Weather Information(First API):** View current weather details such as temperature, feels like and description.
+- **3-Day Forecast(Second API):** Access detailed weather forecasts for the next 3 days.
+- **Historical Data(Third API):** Retrieve information about the quality of air on specific query.
+- **Interactive Map:** Explore the city's location on an interactive map powered by Leaflet and OpenStreetMap.
 
 ## Technologies Used
 
@@ -23,7 +23,11 @@ This project is a web application that provides weather information, a 5-day for
 
 ## API Integration
 
-This application uses the [OpenWeatherMap API](https://openweathermap.org/) for retrieving weather, forecast, and historical data. Ensure you have an API key to access their services.
+- First function uses the [OpenWeatherMap API](https://openweathermap.org/) for retrieving weather data. 
+- Second  function uses the [WeatherAPI](https://www.weatherapi.com) for retrieving forecast for 3 - days.
+- Third  function uses the [API - Air Quality Programmatic APIs](https://aqicn.org) for checking the quality of air.
+
+*Ensure you have an API keys to access their services.*
 
 ## Installation and Setup
 
@@ -45,7 +49,9 @@ This application uses the [OpenWeatherMap API](https://openweathermap.org/) for 
 
 4. Create a `.env` file in the root directory and add the following:
    ```env
-   API_KEY=your_openweathermap_api_key
+   API_KEY_WEATHER=your_openweathermap_api_key
+   API_KEY_AQI=your_aqi_key
+   API_KEY_FEW=your_weatherapi_api_key
    PORT=3000
    ```
 
@@ -64,8 +70,8 @@ This application uses the [OpenWeatherMap API](https://openweathermap.org/) for 
 1. Enter the name of the city in the input field.
 2. Use the buttons to:
    - Fetch the current weather.
-   - Get a 5-day weather forecast.
-   - Retrieve historical weather data.
+   - Get a 3-day weather forecast.
+   - Retrieve air quality data.
 3. View the city's location on the interactive map.
 
 ## File Structure
@@ -84,6 +90,8 @@ weather-app/
 ## Acknowledgments
 
 - [OpenWeatherMap API](https://openweathermap.org/)
+- [WeatherAPI](https://www.weatherapi.com)
+- [API - Air Quality Programmatic APIs](https://aqicn.org)
 - [Leaflet.js](https://leafletjs.com/)
 - [Node.js](https://nodejs.org/)
 
